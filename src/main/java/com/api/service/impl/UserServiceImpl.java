@@ -5,9 +5,11 @@ import java.util.*;
 
 import com.api.dto.response.ResponseErrorTemplate;
 import com.api.exception.BaseException;
+import com.api.exception.CustomAuthException;
 import com.api.utils.ConstantUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -42,7 +44,6 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
-    //private final AuthenticationManager authenticationManager;
 
     @Override
     public ResponseErrorTemplate register(RegisterRequest request) throws RuntimeException {
@@ -81,25 +82,6 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
-//    @Override
-//    public AuthResponse authenticate(LoginRequest request)  {
-//
-//        authenticationManager.authenticate(
-//            new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-//        );
-//
-//        Optional<User> user = userRepository.findByEmail(request.getEmail());
-//
-//        String genToken = jwtService.generateToken(user.get());
-//        String genRefreshToken = jwtService.generateRefreshToken(user.get());
-//
-//        AuthResponse authResponse = new AuthResponse();
-//        authResponse.setAccessToken(genToken);
-//        authResponse.setRefreshToken(genRefreshToken);
-//
-//        return authResponse;
-//    }
-
     @Override
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
@@ -116,14 +98,20 @@ public class UserServiceImpl implements UserService {
             userEmail = jwtService.extractUsername(jwtRefreshToken);
             if (userEmail != null) {
                 
-                User user = userRepository.findByEmail(userEmail).orElseThrow( () -> new UsernameNotFoundException("Email not found...") );
-                
+                User user = userRepository.findByEmail(userEmail);//.orElseThrow( () -> new UsernameNotFoundException("Email not found...") );
+                if ( Objects.isNull(user)){
+                    throw new BaseException(ConstantUtils.SC_NF, "User Not Found");
+                }
+
                 if (jwtService.isTokenValid(jwtRefreshToken, user)) {
                     var accessToken = jwtService.generateToken(user);
-                    AuthResponse auhtResponse = new AuthResponse();
-                    auhtResponse.setAccessToken(accessToken);
-                    auhtResponse.setRefreshToken(jwtRefreshToken);
-                    new ObjectMapper().writeValue(response.getOutputStream(), auhtResponse);
+                    AuthResponse authResponse = new AuthResponse();
+
+                    authResponse.setAccessToken(accessToken);
+                    authResponse.setRefreshToken(jwtRefreshToken);
+                    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+
+                    new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
                 }
             }
         }catch(ExpiredJwtException ex){
@@ -135,19 +123,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void saveUserAttemptAuthentication(String email) {
-        Optional<User> user = userRepository.findByEmail(email);
-        if (user.isPresent()){
-            if (user.get().isEnabled() && user.get().isAccountNonLocked()){
-                if (user.get().getAttempt() < ConstantUtils.MAX_FAILED_ATTEMPTS - 1){
-                    this.increaseFailedAttempts(user.get());
+        User user = userRepository.findByEmail(email);
+        if ( Objects.nonNull(user) ){
+            if (user.isEnabled() && user.isAccountNonLocked()){
+                if (user.getAttempt() < ConstantUtils.MAX_FAILED_ATTEMPTS - 1){
+                    this.increaseFailedAttempts(user);
                 }else {
-                    this.lock(user.get());
-                    throw new BaseException(ConstantUtils.SC_BD, "Your account has been locked due to 3 failed attempts."
+                    this.lock(user);
+                    throw new CustomAuthException("Your account has been locked due to 3 failed attempts."
                             + " It will be unlocked after 24 hours.");
                 }
-            }else if(!user.get().getAccountNonLocked()) {
-                if (this.unlockWhenTimeExpired(user.get())) {
-                    throw new BaseException(ConstantUtils.SC_BD,"Your account has been unlocked. Please try to login again.");
+            }else if(!user.getAccountNonLocked()) {
+                if (this.unlockWhenTimeExpired(user)) {
+                    throw new CustomAuthException("Your account has been unlocked. Please try to login again.");
                 }
             }
         }
@@ -157,6 +145,9 @@ public class UserServiceImpl implements UserService {
     public void updateAttempt(String email) {
         this.resetFailedAttempts(email);
     }
+
+
+
     private void increaseFailedAttempts(User user) {
         int attempt = user.getAttempt() + 1;
         userRepository.updateFailedAttempts(attempt, user.getEmail());
@@ -203,7 +194,7 @@ public class UserServiceImpl implements UserService {
     }
     private Boolean existsEmail(String email){
         var user = userRepository.findByEmail(email);
-        if (user.isPresent()) {
+        if (Objects.nonNull(user)) {
             return true;
         }
         return false;

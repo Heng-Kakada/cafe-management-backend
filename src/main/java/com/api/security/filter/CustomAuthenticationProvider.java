@@ -34,7 +34,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String password = authentication.getCredentials().toString();
         User user;
         try {
-            user = userRepository.findByEmail(email).get();
+            user = userRepository.findByEmail(email);
         }catch (Exception e){
             throw new BaseException(ConstantUtils.SC_UA, "User not found!");
         }

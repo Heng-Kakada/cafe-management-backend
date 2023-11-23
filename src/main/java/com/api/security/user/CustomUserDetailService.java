@@ -1,10 +1,13 @@
 package com.api.security.user;
 
+import java.util.Objects;
 import java.util.Optional;
 
 
 import com.api.exception.BaseException;
 import com.api.utils.ConstantUtils;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,28 +23,19 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class CustomUserDetailService implements UserDetailsService {
-
     private final UserRepository userRepository;
-
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return getUserDetails(username);
-    }
-
-    private UserDetails getUserDetails(String username){
-        Optional<User> user = userRepository.findByEmail(username);
-
-        //validate user
+        User user = userRepository.findByEmail(username);
         this.validateUser(user);
-
-        return user.get();
+        return user;
     }
+    private void validateUser(User user){
 
-    private void validateUser(Optional<User> user){
-        if( user.isEmpty() ){
-            log.warn("{}", user.get().getEmail());
-            throw new BaseException(ConstantUtils.SC_NF, "User Email Is Not Found!");
+        if(Objects.isNull(user)){
+            throw new BaseException(ConstantUtils.SC_UA, "User Not Found!");
         }
+
     }
     
 }

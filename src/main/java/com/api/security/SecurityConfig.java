@@ -53,7 +53,8 @@ public class SecurityConfig {
                 .formLogin( form -> form.disable() )
                 .authorizeHttpRequests( auth -> auth
                                             .requestMatchers("/api/auth/**").permitAll()
-                                            .requestMatchers("/api/dashborad/**").hasRole("ADMIN")
+                                            .requestMatchers("/api/dashboard/**").hasAnyRole("USER", "MANAGER", "ADMIN")
+                                            .requestMatchers("/api/categories/**").hasAnyRole("MANAGER","ADMIN")
                                     )
                 .sessionManagement( session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationManager(manager)

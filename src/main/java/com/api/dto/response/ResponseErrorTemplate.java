@@ -11,10 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ResponseErrorTemplate {
-
     private String code;
     private String message;
     @JsonProperty("data")
     private Object data;
-
 }

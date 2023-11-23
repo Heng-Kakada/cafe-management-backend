@@ -32,12 +32,6 @@ public class AuthenticationController {
         return ResponseEntity.ok(register);
     }
 
-//    @PostMapping("authenticate")
-//    public ResponseEntity<?> authenticate(@RequestBody LoginRequest request){
-//        AuthResponse response = userService.authenticate(request);
-//        return ResponseEntity.ok().body(response);
-//    }
-
     @GetMapping("refresh-token")
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException{
         userService.refreshToken(request, response);

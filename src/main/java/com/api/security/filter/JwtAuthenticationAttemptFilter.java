@@ -3,6 +3,7 @@ package com.api.security.filter;
 import com.api.dto.request.LoginRequest;
 import com.api.dto.response.AuthResponse;
 import com.api.exception.BaseException;
+import com.api.exception.CustomAuthException;
 import com.api.security.jwt.JwtService;
 import com.api.security.user.CustomUserDetailService;
 import com.api.service.UserService;
@@ -10,12 +11,13 @@ import com.api.utils.ConstantUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
@@ -42,35 +44,27 @@ public class JwtAuthenticationAttemptFilter extends AbstractAuthenticationProces
         this.jwtService = jwtService;
         this.userService = userService;
     }
-
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
-
         log.info("Start attempt to authentication");
+
         LoginRequest loginRequest  = objectMapper.readValue(request.getInputStream(), LoginRequest.class);
 
-        //userService.increaseFailedAttempts(loginRequest.getEmail());
-        log.info("End attempt to authentication");
-
-        // TODO fix duplicate response when BaseException message : Your account has been locked due to 3 failed attempts."
-        //                            + " It will be unlocked after 24 hours. and  message : Your account has been unlocked. Please try to login again.  raise
-
-
+        Authentication authentication = null;
         try {
             userService.saveUserAttemptAuthentication(loginRequest.getEmail());
-        }catch (BaseException e){
-            var msgJson = objectMapper.writeValueAsString(e);
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.getWriter().write(msgJson);
-        }
+            authentication = getAuthenticationManager()
+                    .authenticate(new UsernamePasswordAuthenticationToken(
+                            loginRequest.getEmail(),
+                            loginRequest.getPassword(),
+                            Collections.emptyList())
+                    );
+        }catch (CustomAuthException | LockedException | DisabledException | BadCredentialsException ex) {
+            unsuccessfulAuthentication(request, response, ex);
+        };
 
-        return getAuthenticationManager()
-                .authenticate(new UsernamePasswordAuthenticationToken(
-                        loginRequest.getEmail(),
-                        loginRequest.getPassword(),
-                        Collections.emptyList())
-                );
+        log.info("End attempt to authentication");
+        return authentication;
     }
 
     @Override
@@ -91,6 +85,7 @@ public class JwtAuthenticationAttemptFilter extends AbstractAuthenticationProces
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.getWriter().write(jsonUser);
+
         log.info("Successful Authentication {}", authenticationResponse);
     }
 
@@ -100,8 +95,8 @@ public class JwtAuthenticationAttemptFilter extends AbstractAuthenticationProces
         BaseException e = new BaseException();
         e.setCode(ConstantUtils.SC_UA);
         e.setMessage(failed.getLocalizedMessage());
-
         var msgJson = objectMapper.writeValueAsString(e);
+
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.getWriter().write(msgJson);
