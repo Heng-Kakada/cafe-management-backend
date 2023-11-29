@@ -20,34 +20,25 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public ResponseErrorTemplate addCategory(CategoryRequest request) {
-
         this.validateCategory(request);
-
         Category category = Category.builder()
                 .name(request.getName())
                 .description(request.getDescription())
                 .build();
-
         categoryRepository.save(category);
-
         return ResponseErrorTemplate.builder()
                 .code(ConstantUtils.SC_OK)
                 .message("Successfully Created...")
                 .data(category)
                 .build();
-
     }
     private void validateCategory(CategoryRequest request){
-
         var category = categoryRepository.findByName(request.getName());
-
         if ( Objects.isNull(request.getName())  || request.getName().isEmpty() || request.getName().isBlank()  ){
             throw new BaseException(ConstantUtils.SC_BD, "Name : must be not null!");
         }
-
         if (Objects.nonNull(category)){
             throw new BaseException(ConstantUtils.SC_BD, "%s : is already created !".formatted(request.getName()));
         }
-
     }
 }

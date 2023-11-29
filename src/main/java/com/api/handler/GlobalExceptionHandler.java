@@ -16,4 +16,5 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<?> baseExceptionHandler(BaseException e){
         return ResponseEntity.ok().body(new ResponseErrorTemplate(e.getCode(), e.getMessage(), null));
     }
+
 }

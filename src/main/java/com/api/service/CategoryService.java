@@ -6,4 +6,5 @@ import com.api.dto.response.ResponseErrorTemplate;
 public interface CategoryService {
     ResponseErrorTemplate addCategory(CategoryRequest request);
 
+
 }
