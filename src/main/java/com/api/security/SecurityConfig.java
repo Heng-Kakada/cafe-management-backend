@@ -55,6 +55,7 @@ public class SecurityConfig {
                                             .requestMatchers("/api/auth/**").permitAll()
                                             .requestMatchers("/api/dashboard/**").hasAnyRole("USER", "MANAGER", "ADMIN")
                                             .requestMatchers("/api/categories/**").hasAnyRole("MANAGER","ADMIN")
+                                            .requestMatchers("/api/products/**").hasAnyRole("MANAGER","ADMIN")
                                     )
                 .sessionManagement( session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationManager(manager)

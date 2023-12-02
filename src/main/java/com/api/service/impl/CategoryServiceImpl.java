@@ -1,7 +1,6 @@
 package com.api.service.impl;
 
 import com.api.dto.request.CategoryRequest;
-import com.api.dto.response.CategoryResponse;
 import com.api.dto.response.PageResponse;
 import com.api.dto.response.ResponseErrorTemplate;
 import com.api.exception.BaseException;
@@ -21,9 +20,7 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
-
     private final CategoryRepository categoryRepository;
-
     @Override
     public ResponseErrorTemplate addCategory(CategoryRequest request) {
         this.validateCategory(request);
@@ -38,7 +35,6 @@ public class CategoryServiceImpl implements CategoryService {
                 .data(category)
                 .build();
     }
-
     @Override
     public PageResponse getAllCategories(Map<String, String> params) {
         int pageLimit = PageUtils.DEFAULT_PAGE_LIMIT;
@@ -54,24 +50,16 @@ public class CategoryServiceImpl implements CategoryService {
         Page<Category> pages = categoryRepository.findAll(pageable);
         return new PageResponse(pages);
     }
-
     @Override
     public ResponseErrorTemplate getCategory(Long id) {
         Category category = getCategoryById(id);
 
-        CategoryResponse response = CategoryResponse
-                .builder()
-                .name(category.getName())
-                .description(category.getDescription())
-                .build();
-
         return ResponseErrorTemplate.builder()
                 .code(ConstantUtils.SC_OK)
                 .message("Success!")
-                .data(response)
+                .data(category)
                 .build();
     }
-
     @Override
     public ResponseErrorTemplate updateCategory(Long id, CategoryRequest categoryRequest) {
         Category category = getCategoryById(id);
@@ -87,7 +75,6 @@ public class CategoryServiceImpl implements CategoryService {
                 .data(category)
                 .build();
     }
-
     @Override
     public ResponseErrorTemplate deleteCategory(Long id) {
         Category category = getCategoryById(id);
