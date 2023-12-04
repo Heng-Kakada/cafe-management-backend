@@ -13,7 +13,7 @@ import com.api.model.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findByEmail(String email);
+    User findByEmail(String email);
     @Query("UPDATE User u SET u.attempt = ?1 WHERE u.email = ?2")
     @Modifying
     @Transactional

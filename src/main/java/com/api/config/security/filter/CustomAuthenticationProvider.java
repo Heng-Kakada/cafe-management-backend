@@ -1,4 +1,4 @@
-package com.api.security.filter;
+package com.api.config.security.filter;
 
 import com.api.exception.BaseException;
 import com.api.model.Role;
@@ -34,7 +34,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String password = authentication.getCredentials().toString();
         User user;
         try {
-            user = userRepository.findByEmail(email).get();
+            user = userRepository.findByEmail(email);
         }catch (Exception e){
             throw new BaseException(ConstantUtils.SC_UA, "User not found!");
         }

@@ -41,7 +41,6 @@ public class User implements UserDetails {
     private String phoneNumber;
     private Integer attempt;
     private Boolean enable;
-
     private Boolean accountNonLocked;
     private Date lockTime;
 
