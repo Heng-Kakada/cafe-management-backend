@@ -10,20 +10,16 @@ import com.api.utils.ConstantUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.api.dto.request.LoginRequest;
 import com.api.dto.request.RegisterRequest;
 import com.api.dto.response.AuthResponse;
 import com.api.model.Role;
 import com.api.model.User;
 import com.api.repository.RoleRepository;
 import com.api.repository.UserRepository;
-import com.api.security.jwt.JwtService;
+import com.api.config.security.jwt.JwtService;
 import com.api.service.UserService;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,18 +1,15 @@
-package com.api.security.filter;
+package com.api.config.security.filter;
 
+import com.api.config.security.jwt.JwtService;
 import com.api.dto.request.LoginRequest;
 import com.api.dto.response.AuthResponse;
 import com.api.exception.BaseException;
 import com.api.exception.CustomAuthException;
-import com.api.security.jwt.JwtService;
-import com.api.security.user.CustomUserDetailService;
 import com.api.service.UserService;
 import com.api.utils.ConstantUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -20,15 +17,12 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.Optional;
 
 @Slf4j
 public class JwtAuthenticationAttemptFilter extends AbstractAuthenticationProcessingFilter {

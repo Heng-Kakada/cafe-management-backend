@@ -1,4 +1,4 @@
-package com.api.security.jwt;
+package com.api.config.security.jwt;
 
 
 import java.security.Key;

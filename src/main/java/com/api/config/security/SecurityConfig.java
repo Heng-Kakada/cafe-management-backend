@@ -1,11 +1,11 @@
-package com.api.security;
+package com.api.config.security;
 
+import com.api.config.security.filter.CustomAuthenticationProvider;
+import com.api.config.security.filter.JwtAuthenticationAttemptFilter;
+import com.api.config.security.filter.JwtAuthenticationFilter;
+import com.api.config.security.jwt.JwtService;
+import com.api.config.security.user.CustomUserDetailService;
 import com.api.handler.CustomAccessDeniedHandler;
-import com.api.security.filter.CustomAuthenticationProvider;
-import com.api.security.filter.CustomCorsFilter;
-import com.api.security.filter.JwtAuthenticationAttemptFilter;
-import com.api.security.jwt.JwtService;
-import com.api.security.user.CustomUserDetailService;
 import com.api.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,15 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import com.api.security.filter.JwtAuthenticationFilter;
 
 import lombok.RequiredArgsConstructor;
 
@@ -56,6 +53,7 @@ public class SecurityConfig {
                                             .requestMatchers("/api/dashboard/**").hasAnyRole("USER", "MANAGER", "ADMIN")
                                             .requestMatchers("/api/categories/**").hasAnyRole("MANAGER","ADMIN")
                                             .requestMatchers("/api/products/**").hasAnyRole("MANAGER","ADMIN")
+                                            .requestMatchers("/api/orders/**").hasAnyRole("MANAGER","ADMIN")
                                     )
                 .sessionManagement( session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationManager(manager)

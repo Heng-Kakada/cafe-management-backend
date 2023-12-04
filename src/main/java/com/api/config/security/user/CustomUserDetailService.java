@@ -1,4 +1,4 @@
-package com.api.security.user;
+package com.api.config.security.user;
 
 import java.util.Objects;
 import java.util.Optional;

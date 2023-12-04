@@ -1,4 +1,4 @@
-package com.api.security.filter;
+package com.api.config.security.filter;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;

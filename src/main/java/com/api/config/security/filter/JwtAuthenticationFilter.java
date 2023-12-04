@@ -1,12 +1,9 @@
-package com.api.security.filter;
+package com.api.config.security.filter;
 
 import java.io.IOException;
 
 
-import com.api.exception.BaseException;
-import com.api.security.jwt.JwtService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.http.MediaType;
+import com.api.config.security.jwt.JwtService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;

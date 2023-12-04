@@ -1,4 +1,4 @@
-package com.api.security.filter;
+package com.api.config.security.filter;
 
 import com.api.exception.BaseException;
 import com.api.model.Role;
